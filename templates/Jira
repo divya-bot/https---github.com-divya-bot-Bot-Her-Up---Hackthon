@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI to Jira</title>
+</head>
+<body>
+  <h2>Upload BRD & Generate User Stories</h2>
+  <form method="POST" enctype="multipart/form-data">
+    <label>Prompt:</label><br>
+    <textarea name="prompt" rows="4" cols="50"></textarea><br><br>
+    <input type="file" name="file"><br><br>
+    <button type="submit">Generate Stories</button>
+  </form>
+
+  {% if stories %}
+    <h3>Generated Stories</h3>
+    <ul>
+      {% for s in stories %}
+        <li><b>{{ s.title }}</b><br>{{ s.description }}</li>
+      {% endfor %}
+    </ul>
+
+    <form method="POST" action="/create_jira">
+      <button type="submit">Create Jira Stories</button>
+    </form>
+  {% endif %}
+</body>
+</html>

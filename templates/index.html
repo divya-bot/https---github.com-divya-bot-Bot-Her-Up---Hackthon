@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BRD Analyzer</title>
+    <style>
+        body {
+            background-image: url("{{ url_for('static', filename='pexels-pixabay-269318.jpg') }}");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .story-box {
+            background: rgba(255,255,255,0.9);
+            border-left: 6px solid #007BFF;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            font-family: Consolas, monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        h1, h2, label {
+            color: white;
+        }
+        .jira-link {
+            color: white;
+            font-weight: bold;
+        }
+        .btn {
+            padding: 10px 20px;
+            margin: 10px 5px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .btn-generate {
+            background-color: grey;
+            color: white;
+        }
+        .btn-jira {
+            background-color: grey;
+            color: white;
+        }
+        .btn-excel{
+          background-color: grey;
+            color: white;  
+        }
+
+        /* Custom file upload styling */
+        .file-upload {
+            position: relative;
+            display: inline-block;
+        }
+        .file-upload input[type="file"] {
+            display: none; /* hide the ugly default input */
+        }
+        .file-upload-label {
+            padding: 10px 20px;
+            margin: 10px 5px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            background-color: grey;
+        }
+        .file-chosen {
+            margin-left: 10px;
+            color: white;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>StoryCraft – From BRD to User Stories & Test Cases</h1>
+
+    <!-- Upload Form -->
+    <form method="post" enctype="multipart/form-data">
+        <label for="prompt"><b>Enter Prompt:</b></label><br>
+        <br>
+        <textarea name="prompt" rows="5" cols="40"></textarea><br><br>
+
+        <label><b>Upload BRD document (PDF or TXT):</b></label><br>
+        <br>
+        <div class="file-upload">
+        <div class="left-align">
+        <label for="file" class="file-upload-label" style="font-weight: bold">Choose File</label>
+        <input type="file" id="file" name="file" onchange="showFileName()">
+        <span id="file-chosen" class="file-chosen">(No file chosen)</span>
+        </div>
+        </div>
+        <br><br>
+
+        <!-- Buttons -->
+    <div class="left-align">
+    <button type="submit" class="btn btn-generate" name="action" value="generate" style="font-weight: bold">
+    Do the Magic!
+   </button>
+   </div>
+    </form>
+
+    {% if error_message %}
+      <p style="color: red; font-weight: bold;">{{ error_message }}</p>
+    {% endif %}
+
+    {% if output %}
+        <h3 style="color: white; font-weight: bold;">Generated user stories/test cases</h3>
+        <div class="story-box">{{ output }}</div>
+    {% endif %}
+
+    <form method="post" action="/">
+    <button type="submit" class="btn btn-excel" style="font-weight: bold" name="action" value="export_to_excel">
+        Export to Excel
+    </button>
+</form>
+
+     
+  <!-- Jira Stories Button -->
+  <form method="POST" action="/">
+    {% for s in stories %}
+      <input type="hidden" name="titles" value="{{ s.title }}">
+      <input type="hidden" name="descriptions" value="{{ s.description }}">
+    {% endfor %}
+    <div class="left-align">
+    <button type="submit" class="btn btn-jira" name="action" value="create_jira" style="font-weight: bold">
+    Create Jira Stories
+    </button>
+    </div>
+  </form>
+ 
+    {% if error_message_jira %}
+      <p style="color: red; font-weight: bold;">{{ error_message_jira }}</p>
+    {% endif %}
+
+    {% if issues %}
+      <h2>Jira Stories Created</h2>
+      <ul>
+        {% for issue in issues %}
+          <li>
+            <a href="{{ jira_server }}/browse/{{ issue }}" target="_blank" class="jira-link">
+            {{ jira_server }}/browse/{{ issue }}
+          </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <script>
+      function showFileName() {
+        const fileInput = document.getElementById("file");
+        const fileChosen = document.getElementById("file-chosen");
+        fileChosen.textContent = fileInput.files.length > 0 ? fileInput.files[0].name : "No file chosen";
+      }
+    </script>
+</body>
+</html>
